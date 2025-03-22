@@ -1,4 +1,5 @@
 import openai
+import os
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
@@ -14,7 +15,7 @@ def get_response():
     return jsonify({'ai_response': ai_response})
 
 def get_ai_response(user_input):
-    openai.api_key = 'your-actual-api-key-here'
+    openai.api_key = os.getenv('OPENAI_API_KEY')
     # Ensure to replace 'your-actual-api-key-here' with your real OpenAI API key.
     response = openai.Completion.create(
         engine='text-davinci-003',

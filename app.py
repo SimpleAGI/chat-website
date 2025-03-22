@@ -17,12 +17,11 @@ def get_response():
 def get_ai_response(user_input):
     openai.api_key = os.getenv('OPENAI_API_KEY')
     # Ensure to replace 'your-actual-api-key-here' with your real OpenAI API key.
-    response = openai.Completion.create(
-        engine='gpt-4o',
-        prompt=user_input,
-        max_tokens=150
+    response = openai.ChatCompletion.create(
+        model='gpt-4o',
+        messages=[{"role": "user", "content": user_input}],
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message['content'].strip()
 
 if __name__ == '__main__':
     app.run(debug=True)

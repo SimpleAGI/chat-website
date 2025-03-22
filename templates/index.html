@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#007bff">
     <title>Advanced Chat Interface</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
     <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f7f9;
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(to right, #00c6ff, #0072ff);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -40,33 +42,33 @@
     }
     .user-bubble {
         align-self: flex-end;
-        background-color: #DCF8C6;
+        background-color: #dcf8c6;
     }
     .ai-bubble {
         align-self: flex-start;
-        background-color: #F1F0F0;
+        background-color: #f1f0f0;
     }
     .input-area {
         display: flex;
         border-top: 1px solid #ccc;
-        padding: 10px;
+        padding: 15px;
     }
     .input-area input[type="text"] {
         flex: 1;
         border: none;
-        padding: 10px;
-        font-size: 16px;
+        padding: 12px;
+        font-size: 18px;
         border-radius: 5px;
         outline: none;
     }
     .input-area button {
-        background-color: #0b93f6;
+        background-color: #007bff;
         color: white;
         border: none;
-        padding: 10px 15px;
+        padding: 12px;
         border-radius: 5px;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 18px;
         margin-left: 5px;
     }
     .input-area button:disabled {

@@ -3,40 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Interface</title>
+    <title>Advanced Chat Interface</title>
     <style>
-    .chat-container { display: flex; flex-direction: column; }
-    .user-bubble { align-self: flex-end; background-color: #DCF8C6; border-radius: 10px; margin: 5px; padding: 10px; max-width: 60%; }
-    .ai-bubble { align-self: flex-start; background-color: #F1F0F0; border-radius: 10px; margin: 5px; padding: 10px; max-width: 60%; }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    .chat-container {
+        width: 90%;
+        max-width: 600px;
+        background: #fff;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .messages {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        max-height: 70vh;
+        padding: 10px;
+    }
+    .user-bubble, .ai-bubble {
+        border-radius: 18px;
+        padding: 12px;
+        margin: 5px 0;
+        max-width: 70%;
+        word-wrap: break-word;
+    }
+    .user-bubble {
+        align-self: flex-end;
+        background-color: #DCF8C6;
+    }
+    .ai-bubble {
+        align-self: flex-start;
+        background-color: #F1F0F0;
+    }
+    .input-area {
+        display: flex;
+        border-top: 1px solid #ccc;
+        padding: 10px;
+    }
+    .input-area input[type="text"] {
+        flex: 1;
+        border: none;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        outline: none;
+    }
+    .input-area button {
+        background-color: #0b93f6;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-left: 5px;
+    }
+    .input-area button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        {% for message in messages %}
-          {% if message.sender == 'user' %}
-            <div class='user-bubble'>{{ message.content }}</div>
-          {% else %}
-            <div class='ai-bubble'>{{ message.content }}</div>
-          {% endif %}
-        {% endfor %}
+        <div class="messages">
+            {% for message in messages %}
+              {% if message.sender == 'user' %}
+                <div class='user-bubble'>{{ message.content }}</div>
+              {% else %}
+                <div class='ai-bubble'>{{ message.content }}</div>
+              {% endif %}
+            {% endfor %}
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message here..." autofocus/>
+            <button id="send-button" disabled>Send</button>
+        </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
     $(document).ready(function(){
-        $("#send-button").click(function(){
-            var user_input = $("#user-input").val();
-            $.ajax({
-                type: "POST",
-                url: "/get_response",
-                contentType: "application/json",
-                data: JSON.stringify({"message": user_input}),
-                success: function(response){
-                    var ai_response = response.ai_response;
-                    $(".chat-container").append('<div class="user-bubble">' + user_input + '</div>');
-                    $(".chat-container").append('<div class="ai-bubble">' + ai_response + '</div>');
-                    $("#user-input").val('');
-                }
-            });
+        const $userInput = $('#user-input');
+        const $sendButton = $('#send-button');
+        
+        $userInput.on('input', function() {
+            $sendButton.prop('disabled', !$userInput.val().trim());
+        });
+
+        $sendButton.click(function(){
+            var user_input = $userInput.val().trim();
+            if(user_input) {
+                $.ajax({
+                    type: "POST",
+                    url: "/get_response",
+                    contentType: "application/json",
+                    data: JSON.stringify({"message": user_input}),
+                    success: function(response){
+                        var ai_response = response.ai_response;
+                        $(".messages").append('<div class="user-bubble">' + user_input + '</div>');
+                        $(".messages").append('<div class="ai-bubble">' + ai_response + '</div>');
+                        $userInput.val('');
+                        $sendButton.prop('disabled', true);
+                        $(".messages").scrollTop($(".messages")[0].scrollHeight);
+                    }
+                });
+            }
+        });
+        
+        $userInput.keypress(function(e) {
+            if(e.which == 13 && !$sendButton.prop('disabled')) {
+                $sendButton.click();
+            }
         });
     });
     </script>

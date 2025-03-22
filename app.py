@@ -14,7 +14,8 @@ def get_response():
     return jsonify({'ai_response': ai_response})
 
 def get_ai_response(user_input):
-    openai.api_key = 'your-chatgpt-api-key'
+    openai.api_key = 'your-actual-api-key-here'
+    # Ensure to replace 'your-actual-api-key-here' with your real OpenAI API key.
     response = openai.Completion.create(
         engine='text-davinci-003',
         prompt=user_input,

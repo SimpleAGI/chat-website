@@ -10,20 +10,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const socket = io();
+            const userId = Math.random().toString(36).substr(2, 10); // Random user ID
             const form = document.getElementById('form');
             const input = document.getElementById('input');
 
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (input.value) {
-                    socket.send(input.value);
+                    socket.emit('user_message', {msg: input.value, sid: userId});
                     input.value = '';
                 }
             });
 
             socket.on('message', (msg) => {
                 const item = document.createElement('li');
-                item.textContent = msg;
+                const content = msg.sid === 'AI' ? `AI: ${msg.msg}` : `User ${msg.sid}: ${msg.msg}`;
+                item.textContent = content;
+                document.getElementById('messages').appendChild(item);
+            });
+
+            socket.on('ai_message', (msg) => { // Specific handler for AI messages
+                const item = document.createElement('li');
+                item.textContent = `AI: ${msg.msg}`;
                 document.getElementById('messages').appendChild(item);
             });
         });

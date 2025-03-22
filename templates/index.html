@@ -106,19 +106,53 @@
         $sendButton.click(function(){
             var user_input = $userInput.val().trim();
             if(user_input) {
-                $.ajax({
-                    type: "POST",
-                    url: "/get_response",
-                    contentType: "application/json",
-                    data: JSON.stringify({"message": user_input}),
-                    success: function(response){
-                        var ai_response = response.ai_response;
-                        $(".messages").append('<div class="user-bubble">' + user_input + '</div>');
-                        $(".messages").append('<div class="ai-bubble">' + ai_response + '</div>');
-                        $userInput.val('');
-                        $sendButton.prop('disabled', true);
-                        $(".messages").scrollTop($(".messages")[0].scrollHeight);
+                // Add user message immediately
+                $(".messages").append('<div class="user-bubble">' + user_input + '</div>');
+                $userInput.val('');
+                $sendButton.prop('disabled', true);
+                
+                // Create AI bubble for streaming response
+                var $aiBubble = $('<div class="ai-bubble"></div>');
+                $(".messages").append($aiBubble);
+                
+                // Set up EventSource for streaming
+                fetch('/get_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({"message": user_input})
+                }).then(response => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    
+                    function readStream() {
+                        reader.read().then(({ done, value }) => {
+                            if (done) {
+                                return;
+                            }
+                            
+                            const chunk = decoder.decode(value);
+                            // Parse the SSE format
+                            const lines = chunk.split('\n\n');
+                            for (const line of lines) {
+                                if (line.startsWith('data: ')) {
+                                    const data = line.substring(6);
+                                    $aiBubble.text(data);
+                                }
+                            }
+                            
+                            $(".messages").scrollTop($(".messages")[0].scrollHeight);
+                            readStream();
+                        });
                     }
+                    
+                    readStream();
+                }).catch(error => {
+                    console.error('Error:', error);
+                    $aiBubble.text('Error: Could not get response');
+                }).finally(() => {
+                    $sendButton.prop('disabled', false);
                 });
             }
         });

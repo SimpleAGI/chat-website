@@ -11,17 +11,22 @@ def home():
 @app.route('/get_response', methods=['POST'])
 def get_response():
     user_input = request.json.get('message')
-    ai_response = get_ai_response(user_input)
-    return jsonify({'ai_response': ai_response})
+    return jsonify(stream_chat(user_input))
 
-def get_ai_response(user_input):
+async def stream_chat(user_input):
     openai.api_key = os.getenv('OPENAI_API_KEY')
     # Ensure to replace 'your-actual-api-key-here' with your real OpenAI API key.
     response = openai.ChatCompletion.create(
-        model='gpt-4o',
+        model='gpt-4',
         messages=[{"role": "user", "content": user_input}],
+        stream=True
     )
-    return response.choices[0].message['content'].strip()
+    response_content = ""
+    for chunk in response:
+        delta = chunk['choices'][0]['delta']
+        if 'content' in delta:
+            response_content += delta['content']
+            yield jsonify({'ai_response': response_content})
 
 if __name__ == '__main__':
     app.run(debug=True)

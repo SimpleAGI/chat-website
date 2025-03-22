@@ -18,7 +18,7 @@ def get_ai_response(user_input):
     openai.api_key = os.getenv('OPENAI_API_KEY')
     # Ensure to replace 'your-actual-api-key-here' with your real OpenAI API key.
     response = openai.Completion.create(
-        engine='text-davinci-003',
+        engine='gpt-4o',
         prompt=user_input,
         max_tokens=150
     )
